@@ -1,0 +1,66 @@
+[
+  {
+    "name": "Vestito Elegante Sofia",
+    "image": "/images/products/dress-1.jpg"
+  },
+  {
+    "name": "Blusa Valentina",
+    "image": "/images/products/blouse-1.jpg"
+  },
+  {
+    "name": "Gonna Luna",
+    "image": "/images/products/skirt-1.jpg"
+  },
+  {
+    "name": "Pantaloni Roma",
+    "image": "/images/products/pants-1.jpg"
+  },
+  {
+    "name": "Giacca Athena",
+    "image": "/images/products/jacket-1.jpg"
+  },
+  {
+    "name": "Borsa Sera",
+    "image": "/images/products/bag-1.jpg"
+  },
+  {
+    "name": "Vestito Estate",
+    "image": "/images/products/dress-2.jpg"
+  },
+  {
+    "name": "Blusa Firenze",
+    "image": "/images/products/blouse-2.jpg"
+  },
+  {
+    "name": "Vestito di Seta Elegante",
+    "image": "/images/products/dress-1.jpg"
+  },
+  {
+    "name": "Bolso di Cuoio Artigianale",
+    "image": "/images/products/bag-1.jpg"
+  },
+  {
+    "name": "Scarpe con Tacco Classico",
+    "image": "/images/products/dress-2.jpg"
+  },
+  {
+    "name": "Giacca in Vera Pelle",
+    "image": "/images/products/jacket-1.jpg"
+  },
+  {
+    "name": "Blusa Elegante",
+    "image": "/images/products/blouse-1.jpg"
+  },
+  {
+    "name": "Borsa in Pelle Rosa",
+    "image": "/images/products/bag-2.jpg"
+  },
+  {
+    "name": "Pantalone Classico",
+    "image": "/images/products/pants-1.jpg"
+  },
+  {
+    "name": "Gonna in Seta",
+    "image": "/images/products/skirt-1.jpg"
+  }
+]
