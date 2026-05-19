@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 346 60% 93%;
+    --foreground: 14 45% 12%;
+    --card: 30 100% 98%;
+    --card-foreground: 14 45% 12%;
+    --popover: 30 100% 98%;
+    --popover-foreground: 14 45% 12%;
+    --primary: 14 45% 12%;
+    --primary-foreground: 30 100% 98%;
+    --secondary: 17 80% 78%;
+    --secondary-foreground: 14 45% 12%;
+    --muted: 17 60% 68%;
+    --muted-foreground: 14 30% 30%;
+    --accent: 30 100% 98%;
+    --accent-foreground: 14 45% 12%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 14 30% 30%;
+    --input: 17 40% 65%;
+    --ring: 14 45% 12%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply text-foreground font-body min-h-screen;
+    background-color: hsl(var(--background));
+  }
+}
+
+@layer components {
+  .admin-page {
+    @apply max-w-7xl mx-auto px-6 lg:px-8 py-8;
+  }
+
+  .admin-page-header {
+    @apply mb-8;
+  }
+
+  .admin-page-title {
+    @apply font-heading text-3xl font-semibold text-foreground tracking-tight;
+  }
+
+  .admin-page-subtitle {
+    @apply text-sm text-muted-foreground mt-1;
+  }
+
+  .admin-stat-card {
+    @apply bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow duration-300;
+  }
+
+  .admin-stat-label {
+    @apply text-xs font-medium text-gray-500 uppercase tracking-wider;
+  }
+
+  .admin-stat-value {
+    @apply font-heading text-3xl font-semibold text-foreground mt-2;
+  }
+
+  .admin-stat-change {
+    @apply text-xs mt-1;
+  }
+
+  .admin-table-wrapper {
+    @apply bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden;
+  }
+
+  .admin-table {
+    @apply min-w-full divide-y divide-gray-100;
+  }
+
+  .admin-table thead {
+    @apply bg-gray-50/80;
+  }
+
+  .admin-table thead th {
+    @apply px-6 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500;
+  }
+
+  .admin-table tbody tr {
+    @apply hover:bg-gray-50/50 transition-colors duration-150;
+  }
+
+  .admin-table tbody td {
+    @apply px-6 py-4 text-sm text-gray-700 whitespace-nowrap;
+  }
+
+  .admin-btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .admin-btn-primary {
+    @apply admin-btn bg-foreground text-white hover:bg-foreground/90 focus:ring-foreground/20 shadow-sm;
+  }
+
+  .admin-btn-secondary {
+    @apply admin-btn bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 focus:ring-gray-200 shadow-sm;
+  }
+
+  .admin-btn-ghost {
+    @apply admin-btn text-gray-500 hover:text-gray-700 hover:bg-gray-100;
+  }
+
+  .admin-btn-danger {
+    @apply admin-btn bg-red-50 text-red-600 hover:bg-red-100 focus:ring-red-200;
+  }
+
+  .admin-input {
+    @apply w-full px-3.5 py-2.5 text-sm bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-gray-300 transition-all duration-200;
+  }
+
+  .admin-label {
+    @apply block text-sm font-medium text-gray-700 mb-1.5;
+  }
+
+  .admin-form-group {
+    @apply space-y-1.5;
+  }
+
+  .admin-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .admin-badge-success {
+    @apply admin-badge bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20;
+  }
+
+  .admin-badge-warning {
+    @apply admin-badge bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20;
+  }
+
+  .admin-badge-danger {
+    @apply admin-badge bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20;
+  }
+
+  .admin-badge-info {
+    @apply admin-badge bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20;
+  }
+
+  .admin-badge-neutral {
+    @apply admin-badge bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-500/10;
+  }
+
+  .admin-empty {
+    @apply flex flex-col items-center justify-center py-16 text-center;
+  }
+
+  .admin-empty-icon {
+    @apply w-12 h-12 text-gray-300 mb-4;
+  }
+
+  .admin-empty-title {
+    @apply text-sm font-medium text-gray-900 mb-1;
+  }
+
+  .admin-empty-description {
+    @apply text-sm text-gray-500 max-w-sm;
+  }
+
+  .admin-loading {
+    @apply flex items-center justify-center py-16;
+  }
+
+  .admin-loading-spinner {
+    @apply w-6 h-6 border-2 border-gray-200 border-t-foreground/30 rounded-full animate-spin;
+  }
+
+  .admin-error {
+    @apply flex items-center gap-3 p-4 rounded-lg bg-red-50 border border-red-100 text-red-700 text-sm;
+  }
+
+  .admin-success {
+    @apply flex items-center gap-3 p-4 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-700 text-sm;
+  }
+}
+
+@keyframes previewFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
