@@ -4,22 +4,22 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci && npm cache clean --force
+RUN npm install --prefer-offline && npm cache clean --force
 
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm install --prefer-offline
 
 COPY . .
 
 ARG MONGODB_URI
 ARG JWT_SECRET
 
-ENV MONGODB_URI=${MONGODB_URI}
-ENV JWT_SECRET=${JWT_SECRET}
+ENV MONGODB_URI=${MONGODB_URI:-mongodb://localhost:27017}
+ENV JWT_SECRET=${JWT_SECRET:-default-secret-change-in-production}
 
 RUN npm run build
 
@@ -29,9 +29,10 @@ RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001 -G nodejs
 
 WORKDIR /app
 
-COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+
+RUN chown -R nextjs:nodejs /app
 
 USER nextjs
 
