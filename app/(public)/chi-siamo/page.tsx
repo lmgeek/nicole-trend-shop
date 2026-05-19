@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 
+export const dynamic = 'force-dynamic';
+
 export default function ChiSiamoPage() {
   return (
     <div className="pb-24 md:pb-32">

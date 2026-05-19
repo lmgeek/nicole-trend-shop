@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 export default function ModalitaPagamentoPage() {
   return (
     <main className="pt-32 pb-16 px-6 lg:px-12">

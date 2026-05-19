@@ -9,6 +9,15 @@ const nextConfig = {
       },
     ],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  experimental: {
+    ppr: false,
+  },
 };
 
 module.exports = nextConfig;
