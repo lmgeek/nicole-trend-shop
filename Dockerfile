@@ -3,23 +3,17 @@ FROM node:22-alpine AS deps
 WORKDIR /app
 
 COPY package*.json ./
-
 RUN npm install --prefer-offline && npm cache clean --force
 
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install --prefer-offline
-
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ARG MONGODB_URI
-ARG JWT_SECRET
-
 ENV MONGODB_URI=${MONGODB_URI:-mongodb://localhost:27017}
-ENV JWT_SECRET=${JWT_SECRET:-default-secret-change-in-production}
+ENV JWT_SECRET=${JWT_SECRET:-default-secret}
 
 RUN npm run build
 
