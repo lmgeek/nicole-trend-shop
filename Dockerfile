@@ -20,8 +20,8 @@ RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001 -G nodejs
 
 WORKDIR /app
 
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/package.json ./
 
 RUN chown -R nextjs:nodejs /app
 
@@ -32,4 +32,4 @@ EXPOSE 3000
 ENV NODE_ENV=production
 ENV PORT=3000
 
-CMD ["node", "standalone/server.js"]
+CMD ["npx", "next", "start"]
