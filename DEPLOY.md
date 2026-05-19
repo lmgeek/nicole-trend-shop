@@ -1,248 +1,280 @@
-# Deploy en Portainer - Nicole SRL Stack
+# Deploy en Portainer - Nicole SRL
 
-## Arquitectura del Stack
+## Arquitectura
 
 ```
-                    ┌─────────────┐
-  Puerto 80/443 ───►│   Nginx     │
-                    │ (Reverse    │
-                    │   Proxy)    │
-                    └──────┬──────┘
-                           │
-              ┌────────────┴────────────┐
-              │                         │
-       /api/* │                    /*   │
-              ▼                         ▼
-        ┌──────────┐           ┌─────────────┐
-        │  Server  │           │  Frontend   │
-        │ (Node.js)│           │  (Vite+React│
-        │  :3001   │           │   + Nginx)  │
-        └────┬─────┘           └─────────────┘
+Internet :80/:443
+    │
+    ▼
+┌─────────────────────────────────┐
+│  Nginx (reverse proxy)          │
+│  - /api/*      → Server :3001   │
+│  - /*          → Frontend :80   │
+│  - /api/health → Server :3001   │
+└────────────┬────────────────────┘
              │
-             │ mongodb://
-             ▼
-        ┌──────────┐
-        │  MongoDB │
-        │  :27017  │
-        └──────────┘
+      ┌──────┴──────┐
+      ▼             ▼
+┌──────────┐  ┌────────────┐
+│ Server   │  │ Frontend   │
+│ Node.js  │  │ Nginx+React│
+│ :3001    │  │ :80        │
+└────┬─────┘  └────────────┘
+     │
+     │ mongodb://
+     ▼
+┌──────────┐
+│ MongoDB  │
+│ :27017   │
+│ (red int)│
+└──────────┘
 ```
 
-## Estructura de archivos
+## Requisitos del servidor
 
-```
-nicole2/
-├── docker-compose.yml          # Stack completo para Portainer
-├── .env.example                # Variables de entorno
-├── .env                        # Tu archivo de configuración (no commitear)
-├── deploy/
-│   ├── nginx/
-│   │   ├── nginx.conf          # Config principal de Nginx
-│   │   ├── conf.d/
-│   │   │   └── default.conf    # Reverse proxy + frontend
-│   │   └── ssl/                # Certificados TLS (opcional)
-│   └── mongo/
-│       ├── mongod.conf         # Config de MongoDB
-│       └── init.js             # Script de inicializacion
-├── nicole-srl-server/
-│   ├── Dockerfile              # Multi-stage build
-│   └── .dockerignore
-└── nicole-srl-frontend/
-    ├── Dockerfile              # Multi-stage build
-    └── .dockerignore
-```
+- Docker 20.10+ con Docker Compose v2
+- Portainer CE/BE instalado
+- Minimo 2GB RAM, 2 CPU cores
+- Puertos 80 y 443 disponibles
 
-## Opcion 1: Deploy via Web UI (recomendado)
+## Paso 1: Preparar el repositorio
 
-### Paso 1: Preparar variables de entorno
-
-1. Copiar `.env.example` a `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-
-2. Editar `.env` y cambiar **todos** los valores por defecto:
-   ```bash
-   nano .env
-   ```
-
-   **Variables obligatorias a cambiar:**
-   - `MONGO_ROOT_PASSWORD` - Contraseña fuerte para admin de MongoDB
-   - `MONGO_APP_PASSWORD` - Contraseña para la app de MongoDB
-   - `JWT_SECRET` - Secreto JWT (minimo 32 caracteres)
-
-### Paso 2: Crear el Stack en Portainer
-
-1. Ir a **Portainer** → **Stacks** → **Add stack**
-2. Nombre: `nicole-srl`
-3. Metodo: **Web editor**
-4. Copiar el contenido de `docker-compose.yml`
-5. Seleccionar **Upload env file** y subir el archivo `.env`
-6. Click en **Deploy the stack**
-
-### Opcion 1b: Deploy via Git Repository
-
-1. Ir a **Portainer** → **Stacks** → **Add stack**
-2. Nombre: `nicole-srl`
-3. Metodo: **Git Repository**
-4. Repository URL: `https://github.com/tu-org/nicole2.git`
-5. Branch: `main`
-6. Base path: `/` (raiz del repo)
-7. Variables de entorno: agregar cada variable del `.env` como variable individual
-8. Click en **Deploy the stack**
-
-## Opcion 2: Deploy via CLI
+Subir el proyecto a GitHub/GitLab:
 
 ```bash
-# 1. Preparar variables
-cp .env.example .env
-nano .env  # Editar valores
-
-# 2. Deployar el stack
-docker compose up -d --build
-
-# 3. Verificar estado
-docker compose ps
-
-# 4. Ver logs
-docker compose logs -f
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/tu-org/nicole2.git
+git push -u origin main
 ```
 
-## Configuracion SSL (opcional)
+## Paso 2: Configurar variables de entorno en Portainer
 
-### Con Let's Encrypt (Certbot)
+Ir a **Portainer** → **Stacks** → **Add stack**
 
-1. Generar certificados:
-   ```bash
-   certbot certonly --standalone -d tudominio.com
-   ```
+1. **Name**: `nicole-srl`
+2. **Build method**: `Git Repository`
+3. **Repository URL**: `https://github.com/tu-org/nicole2.git`
+4. **Reference**: `main` (o tu branch)
+5. **Base path**: `/`
 
-2. Copiar certificados al directorio SSL:
-   ```bash
-   cp /etc/letsencrypt/live/tudominio.com/fullchain.pem deploy/nginx/ssl/
-   cp /etc/letsencrypt/live/tudominio.com/privkey.pem deploy/nginx/ssl/
-   ```
+### Variables de entorno (una por una)
 
-3. Crear `deploy/nginx/conf.d/ssl.conf`:
-   ```nginx
-   server {
-       listen 443 ssl http2;
-       server_name tudominio.com;
+| Variable | Valor requerido | Ejemplo |
+|---|---|---|
+| `MONGO_ROOT_USER` | Usuario admin MongoDB | `admin` |
+| `MONGO_ROOT_PASSWORD` | Contraseña fuerte admin | `TuPasswordAdmin123!` |
+| `MONGO_DB` | Nombre de la base | `nicole-trend-shop` |
+| `MONGO_APP_USER` | Usuario de la app | `nicole_app` |
+| `MONGO_APP_PASSWORD` | Contraseña app | `TuPasswordApp123!` |
+| `JWT_SECRET` | Minimo 32 caracteres | `mi_secreto_jwt_de_32_chars_minimo` |
+| `VITE_API_URL` | URL relativa de la API | `/api` |
+| `NGINX_HTTP_PORT` | Puerto HTTP externo | `80` |
+| `NGINX_HTTPS_PORT` | Puerto HTTPS externo | `443` |
 
-       ssl_certificate /etc/nginx/ssl/fullchain.pem;
-       ssl_certificate_key /etc/nginx/ssl/privkey.pem;
-       ssl_protocols TLSv1.2 TLSv1.3;
-       ssl_ciphers HIGH:!aNULL:!MD5;
+## Paso 3: Deploy
 
-       # ... mismo contenido que default.conf
-   }
+Click en **Deploy the stack**.
 
-   server {
-       listen 80;
-       server_name tudominio.com;
-       return 301 https://$host$request_uri;
-   }
-   ```
+Tiempo estimado: 3-5 minutos (build de imagenes).
 
-4. Redeployar el stack
+## Verificar el deploy
 
-## Verificacion del deploy
+### 1. Verificar que todos los servicios estan corriendo
 
-### Verificar servicios
+Portainer → Stacks → nicole-srl → ver estado de cada servicio.
+
+Todos deben mostrar `running` o `healthy`.
+
+### 2. Verificar MongoDB
 
 ```bash
-docker compose ps
+# Desde el servidor
+docker exec -it nicole-srl-mongo-1 mongosh \
+  -u admin -p TuPasswordAdmin123! \
+  --authenticationDatabase admin \
+  --eval "db.adminCommand('ping')"
 ```
 
-Todos los servicios deben estar `running` o `healthy`.
+Debe devolver: `{ ok: 1 }`
 
-### Verificar MongoDB
+### 3. Verificar Backend
 
 ```bash
-docker exec -it nicole-mongo mongosh -u admin -p changeme_this_strong_password --eval "db.adminCommand('ping')"
+curl http://TU_IP_SERVIDOR/api/health
 ```
 
-### Verificar Backend
+Debe devolver: `{"status":"ok"}`
+
+### 4. Verificar Frontend
 
 ```bash
-curl http://localhost/api/health
-# Debe devolver: {"status":"ok"}
+curl http://TU_IP_SERVIDOR/
 ```
 
-### Verificar Frontend
-
-```bash
-curl http://localhost/
-# Debe devolver el HTML del frontend
-```
+Debe devolver el HTML del frontend.
 
 ## Logs
 
 ```bash
-# Todos los logs
-docker compose logs -f
+# Todos los servicios
+docker compose -f /data/compose/nicole-srl/docker-compose.yml logs -f
 
 # Solo backend
-docker compose logs -f server
+docker compose -f /data/compose/nicole-srl/docker-compose.yml logs -f server
 
 # Solo MongoDB
-docker compose logs -f mongo
+docker compose -f /data/compose/nicole-srl/docker-compose.yml logs -f mongo
 
 # Solo Nginx
-docker compose logs -f nginx
+docker compose -f /data/compose/nicole-srl/docker-compose.yml logs -f nginx
 ```
 
-## Actualizacion del stack
+O desde Portainer: Stacks → nicole-srl → click en cada servicio → Logs.
 
-### Via Portainer UI
+## Configuracion SSL (Let's Encrypt)
 
-1. Ir a **Stacks** → `nicole-srl`
-2. Editar el `docker-compose.yml` si es necesario
-3. Click en **Update the stack** → **Rebuild**
-
-### Via CLI
+### 1. Instalar Certbot
 
 ```bash
-docker compose up -d --build
+sudo apt install certbot -y
 ```
 
-### Solo un servicio
+### 2. Generar certificado
 
 ```bash
-docker compose up -d --build server
+sudo certbot certonly --standalone -d tudominio.com
+```
+
+### 3. Copiar certificados
+
+```bash
+sudo cp /etc/letsencrypt/live/tudominio.com/fullchain.pem \
+  /ruta/al/repo/deploy/nginx/ssl/fullchain.pem
+sudo cp /etc/letsencrypt/live/tudominio.com/privkey.pem \
+  /ruta/al/repo/deploy/nginx/ssl/privkey.pem
+```
+
+### 4. Crear config SSL
+
+```bash
+cp deploy/nginx/conf.d/ssl.conf.example deploy/nginx/conf.d/ssl.conf
+nano deploy/nginx/conf.d/ssl.conf
+# Cambiar server_name por tu dominio
+```
+
+### 5. Redeployar
+
+Portainer → Stacks → nicole-srl → **Repull and redeploy**.
+
+### 6. Auto-renovacion
+
+```bash
+(crontab -l 2>/dev/null; echo "0 3 * * 1 certbot renew --quiet && docker compose -f /ruta/docker-compose.yml restart nginx") | crontab -
 ```
 
 ## Backup de MongoDB
 
-```bash
-# Backup
-docker exec nicole-mongo mongodump --authenticationDatabase admin -u admin -p changeme_this_strong_password --out /tmp/backup
-docker cp nicole-mongo:/tmp/backup ./backup-$(date +%Y%m%d)
+### Backup automatico
 
-# Restore
-docker cp ./backup-20240101 nicole-mongo:/tmp/restore
-docker exec nicole-mongo mongorestore --authenticationDatabase admin -u admin -p changeme_this_strong_password /tmp/restore
+```bash
+#!/bin/bash
+# /opt/scripts/mongo-backup.sh
+BACKUP_DIR="/opt/backups/mongo/$(date +%Y%m%d_%H%M%S)"
+mkdir -p $BACKUP_DIR
+
+docker exec nicole-srl-mongo-1 mongodump \
+  -u admin -p TuPasswordAdmin123! \
+  --authenticationDatabase admin \
+  --out /tmp/backup
+
+docker cp nicole-srl-mongo-1:/tmp/backup $BACKUP_DIR
+
+# Eliminar backups de mas de 7 dias
+find /opt/backups/mongo -type d -mtime +7 -exec rm -rf {} +
 ```
+
+```bash
+chmod +x /opt/scripts/mongo-backup.sh
+(crontab -l 2>/dev/null; echo "0 2 * * * /opt/scripts/mongo-backup.sh") | crontab -
+```
+
+### Restore manual
+
+```bash
+docker cp ./backup-dir nicole-srl-mongo-1:/tmp/restore
+docker exec nicole-srl-mongo-1 mongorestore \
+  -u admin -p TuPasswordAdmin123! \
+  --authenticationDatabase admin \
+  /tmp/restore
+```
+
+## Actualizacion del stack
+
+### Via Portainer
+
+1. Stacks → nicole-srl → **Repull and redeploy**
+2. O editar el compose y click en **Update the stack**
+
+### Via Git push
+
+Si configuraste webhook, cada push a `main` redeploya automaticamente.
 
 ## Troubleshooting
 
-### El servidor no se conecta a MongoDB
+### Stack no arranca
 
-- Verificar que `MONGODB_URI` usa el hostname `mongo` (nombre del servicio)
-- Verificar que las credenciales coinciden con `MONGO_ROOT_USER` y `MONGO_ROOT_PASSWORD`
+```bash
+# Ver logs del stack
+docker compose logs
 
-### El frontend no encuentra la API
+# Verificar que las variables estan definidas
+docker compose config
+```
 
-- Verificar que `VITE_API_URL=/api` en el build
-- Verificar que Nginx tiene la ruta `/api/` configurada
+### MongoDB no inicia
 
-### Puerto en uso
+- Verificar que `MONGO_ROOT_PASSWORD` no contiene caracteres especiales sin escape
+- Verificar logs: `docker compose logs mongo`
 
-- Cambiar `NGINX_HTTP_PORT` y `NGINX_HTTPS_PORT` en `.env`
+### Server no se conecta a MongoDB
+
+- Verificar que `MONGO_APP_USER` y `MONGO_APP_PASSWORD` coinciden
+- Verificar que el healthcheck de mongo paso antes de que server intente conectar
+
+### Nginx devuelve 502 Bad Gateway
+
+- Verificar que frontend y server estan corriendo: `docker compose ps`
+- Verificar logs de nginx: `docker compose logs nginx`
+
+### Puerto 80 en uso
+
+```bash
+# Ver que proceso usa el puerto
+sudo lsof -i :80
+sudo ss -tlnp | grep :80
+
+# Cambiar NGINX_HTTP_PORT en las variables de entorno
+```
 
 ### Healthcheck falla
 
 ```bash
-# Verificar health de un servicio
-docker inspect --format='{{.State.Health.Status}}' nicole-server
-docker inspect --format='{{json .State.Health}}' nicole-server | jq
+# Ver estado de health
+docker inspect --format='{{.State.Health.Status}}' nicole-srl-server-1
+
+# Ver detalles del healthcheck
+docker inspect nicole-srl-server-1 | grep -A 20 Health
 ```
+
+### Reset completo
+
+```bash
+# Detener y eliminar todo
+docker compose down -v
+
+# Redeployar desde Portainer
+```
+
+> **Nota**: `docker compose down -v` elimina los volumenes (datos de MongoDB). Hacer backup antes.
