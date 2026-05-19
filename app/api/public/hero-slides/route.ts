@@ -8,6 +8,7 @@ export async function GET() {
     const slides = await HeroSlide.find({ enabled: true }).populate('product').sort({ order: 1 });
     return NextResponse.json(slides);
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error fetching hero slides:', error);
+    return NextResponse.json([], { status: 200 });
   }
 }

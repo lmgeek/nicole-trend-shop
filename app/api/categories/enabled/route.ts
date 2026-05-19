@@ -9,6 +9,7 @@ export async function GET() {
     const categories = await Category.find({ enabled: true }).sort({ name: 1 });
     return NextResponse.json(categories);
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error fetching categories:', error);
+    return NextResponse.json([], { status: 200 });
   }
 }

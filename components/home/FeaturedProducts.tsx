@@ -18,8 +18,18 @@ export default function FeaturedProducts() {
   useEffect(() => {
     fetch('/api/public/products/featured')
       .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch((err) => console.error('Errore nel caricamento dei prodotti preferiti:', err))
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          console.error('API returned non-array:', data);
+          setProducts([]);
+        }
+      })
+      .catch((err) => {
+        console.error('Errore nel caricamento dei prodotti preferiti:', err);
+        setProducts([]);
+      })
       .finally(() => setLoading(false));
   }, []);
 

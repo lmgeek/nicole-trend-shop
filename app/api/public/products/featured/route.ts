@@ -11,6 +11,7 @@ export async function GET() {
     const products = await Product.find({ category: { $in: categorySlugs }, isFeatured: true });
     return NextResponse.json(products);
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error fetching featured products:', error);
+    return NextResponse.json([], { status: 200 });
   }
 }

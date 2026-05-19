@@ -25,9 +25,11 @@ export default function CategoriesSection() {
     fetch('/api/categories/enabled')
       .then((res) => res.json())
       .then((data) => {
-        const filtered = data.filter((c: Category) => c.slug !== 'tutto' && c.image);
-        if (filtered.length > 0) {
-          setCategories(filtered.map((c: Category) => ({ name: c.name, image: c.image })));
+        if (Array.isArray(data)) {
+          const filtered = data.filter((c: Category) => c.slug !== 'tutto' && c.image);
+          if (filtered.length > 0) {
+            setCategories(filtered.map((c: Category) => ({ name: c.name, image: c.image })));
+          }
         }
       })
       .catch(() => {});

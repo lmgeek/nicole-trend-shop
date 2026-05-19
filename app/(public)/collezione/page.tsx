@@ -31,8 +31,8 @@ export default function CollezionePage() {
           fetch('/api/public/products').then((res) => res.json()),
           fetch('/api/categories/enabled').then((res) => res.json()),
         ]);
-        setProducts(productsData);
-        setCategories(catsData);
+        setProducts(Array.isArray(productsData) ? productsData : []);
+        setCategories(Array.isArray(catsData) ? catsData : []);
       } catch (err) {
         console.error('Errore nel caricamento dei dati:', err);
       } finally {
