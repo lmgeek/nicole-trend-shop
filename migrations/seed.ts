@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env.local' });
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nicole-trend-shop';
 
@@ -77,7 +80,6 @@ async function seed() {
 
   // Categories
   const categories = [
-    { name: 'TUTTO', slug: 'tutto', image: '' },
     { name: 'Vestiti', slug: 'vestiti', image: '/images/products/dress-1.jpg' },
     { name: 'Bluse', slug: 'bluse', image: '/images/products/blouse-1.jpg' },
     { name: 'Gonne', slug: 'gonne', image: '/images/products/skirt-1.jpg' },
