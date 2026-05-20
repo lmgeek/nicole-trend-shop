@@ -149,7 +149,7 @@ export default function NuovoProdottoPage() {
           <ImageUploader
             value=""
             onChange={addImage}
-            aspectRatio="aspect-[16/9]"
+            aspectRatio="aspect-[4/3]"
             label="Immagine"
           />
 
@@ -157,7 +157,7 @@ export default function NuovoProdottoPage() {
             <MultiImageUploader
               images={formData.images}
               onChange={(imgs) => setFormData({ ...formData, images: imgs })}
-              aspectRatio="aspect-[16/9]"
+              aspectRatio="aspect-[4/3]"
             />
           )}
 

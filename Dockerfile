@@ -1,35 +1,49 @@
-FROM node:22-alpine AS builder
+FROM node:22-alpine AS base
+
+RUN apk add --no-cache libc6-compat
+
+FROM base AS deps
 
 WORKDIR /app
 
 COPY package*.json ./
-COPY tsconfig.json next.config.js ./
-RUN npm install && npm cache clean --force
 
-COPY . .
+RUN npm ci
 
-ENV MONGODB_URI=${MONGODB_URI:-mongodb://localhost:27017}
-ENV JWT_SECRET=${JWT_SECRET:-default-secret}
-ENV NEXT_TELEMETRY_DISABLED=1
-
-RUN npm run build -- --no-lint
-
-FROM node:22-alpine AS production
-
-RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001 -G nodejs
+FROM base AS builder
 
 WORKDIR /app
 
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/package.json ./
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
-RUN chown -R nextjs:nodejs /app
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
+RUN npm run build
+
+FROM base AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+
+RUN mkdir -p .next && chown nextjs:nodejs .next
+
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
 EXPOSE 3000
 
-ENV NODE_ENV=production
 ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-CMD ["npx", "next", "start"]
+CMD ["node", "server.js"]
