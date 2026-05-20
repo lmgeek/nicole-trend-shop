@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "npx tsx migrations/seed.ts"
+    "seed": "npx tsx migrations/seed.ts",
+    "seed:payments": "npx tsx migrations/seed-payment-methods.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.2",

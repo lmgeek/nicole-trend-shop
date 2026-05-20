@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 const saleSchema = new mongoose.Schema({
   client: { type: mongoose.Schema.Types.ObjectId, ref: 'Client' },
   clientName: { type: String },
+  clientEmail: { type: String },
+  clientPhone: { type: String },
   products: [{
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     productName: String,

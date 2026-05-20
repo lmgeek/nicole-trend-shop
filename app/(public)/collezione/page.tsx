@@ -4,6 +4,8 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { ShoppingCart, Check } from 'lucide-react';
+import { useCart } from '@/lib/cart-context';
 
 interface Product {
   _id: string;
@@ -19,10 +21,12 @@ interface Category {
 }
 
 export default function CollezionePage() {
-  const [activeFilter, setActiveFilter] = useState('TUTTO');
+  const { addItem } = useCart();
+  const [activeFilter, setActiveFilter] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addedId, setAddedId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,15 +46,24 @@ export default function CollezionePage() {
     fetchData();
   }, []);
 
-  const categoryOptions = ['TUTTO', ...categories.map((c) => c.name)];
-
-  const filtered = activeFilter === 'TUTTO' ? products : products.filter((p) => p.category === activeFilter.toLowerCase());
+  const filtered = activeFilter === '' ? products : products.filter((p) => p.category === activeFilter);
 
   const formatPrice = (price: number) => `\u20ac ${price.toFixed(2).replace('.', ',')}`;
 
   const getCategoryName = (slug: string) => {
     const cat = categories.find((c) => c.slug === slug);
     return cat ? cat.name : slug;
+  };
+
+  const handleAddToCart = (product: Product) => {
+    addItem({
+      productId: product._id,
+      name: product.name,
+      price: product.price,
+      image: product.images?.[0],
+    });
+    setAddedId(product._id);
+    setTimeout(() => setAddedId(null), 1500);
   };
 
   if (loading) {
@@ -72,9 +85,12 @@ export default function CollezionePage() {
         </motion.div>
 
         <div className="flex flex-wrap gap-2 mb-12">
-          {categoryOptions.map((cat) => (
-            <button key={cat} onClick={() => setActiveFilter(cat)} className={`font-body text-xs tracking-wider uppercase px-5 py-2.5 rounded-full transition-all ${activeFilter === cat ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground/60 hover:text-foreground hover:bg-card/80'}`}>
-              {cat}
+          <button onClick={() => setActiveFilter('')} className={`font-body text-xs tracking-wider uppercase px-5 py-2.5 rounded-full transition-all ${activeFilter === '' ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground/60 hover:text-foreground hover:bg-card/80'}`}>
+            TUTTO
+          </button>
+          {categories.map((cat) => (
+            <button key={cat.slug} onClick={() => setActiveFilter(cat.slug)} className={`font-body text-xs tracking-wider uppercase px-5 py-2.5 rounded-full transition-all ${activeFilter === cat.slug ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground/60 hover:text-foreground hover:bg-card/80'}`}>
+              {cat.name}
             </button>
           ))}
         </div>
@@ -99,6 +115,18 @@ export default function CollezionePage() {
                     <span className="absolute top-3 left-3 bg-primary/80 text-primary-foreground font-body text-[9px] tracking-wider uppercase px-2.5 py-1 rounded-full">
                       {getCategoryName(product.category)}
                     </span>
+
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-foreground hover:text-white text-foreground"
+                      aria-label="Aggiungi al carrello"
+                    >
+                      {addedId === product._id ? (
+                        <Check className="w-4 h-4 text-green-600" />
+                      ) : (
+                        <ShoppingCart className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
                 </div>
                 <h3 className="font-heading text-base md:text-lg font-medium text-foreground mb-1">{product.name}</h3>

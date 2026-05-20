@@ -14,6 +14,7 @@ import {
   LogOut,
   Menu,
   X,
+  CreditCard,
 } from 'lucide-react';
 
 const menuItems = [
@@ -24,6 +25,7 @@ const menuItems = [
   { label: 'Vendite', href: '/admin/vendite', icon: ShoppingCart },
   { label: 'Utenti', href: '/admin/utenti', icon: UserCog },
   { label: 'Hero Slides', href: '/admin/hero', icon: Image },
+  { label: 'Pagamenti', href: '/admin/metodi-pagamento', icon: CreditCard },
 ];
 
 export default function AdminSidebar() {

@@ -9,7 +9,7 @@ const brands = [
 
 export default function BrandCarousel() {
   return (
-    <div className="bg-white py-6 overflow-hidden relative" style={{ marginTop: '80px' }}>
+    <div className="bg-white py-6 overflow-hidden relative" /* style={{ marginTop: '80px' }} */>
       <style>{`
         @keyframes scroll {
           0% { transform: translateX(0); }

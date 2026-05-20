@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { ShoppingCart, Check } from 'lucide-react';
+import { useCart } from '@/lib/cart-context';
 
 interface Product {
   _id: string;
@@ -12,8 +14,10 @@ interface Product {
 }
 
 export default function FeaturedProducts() {
+  const { addItem } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addedId, setAddedId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/public/products/featured')
@@ -32,6 +36,17 @@ export default function FeaturedProducts() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  const handleAddToCart = (product: Product) => {
+    addItem({
+      productId: product._id,
+      name: product.name,
+      price: product.price,
+      image: product.images?.[0],
+    });
+    setAddedId(product._id);
+    setTimeout(() => setAddedId(null), 1500);
+  };
 
   if (loading) {
     return (
@@ -65,7 +80,20 @@ export default function FeaturedProducts() {
             <motion.div key={product._id || product.name} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.08 }} className="group cursor-pointer">
               <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-background mb-4">
                 {product.images && product.images.length > 0 ? (
-                  <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <>
+                    <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-foreground hover:text-white text-foreground"
+                      aria-label="Aggiungi al carrello"
+                    >
+                      {addedId === product._id ? (
+                        <Check className="w-4 h-4 text-green-600" />
+                      ) : (
+                        <ShoppingCart className="w-4 h-4" />
+                      )}
+                    </button>
+                  </>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-100">
                     <span className="text-gray-400 text-sm">Nessuna immagine</span>
