@@ -1,27 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthCookie } from './lib/auth';
+
+const COOKIE_NAME = 'nicole_auth';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const cookie = request.cookies.get(COOKIE_NAME);
+  const hasAuth = !!cookie && cookie.value.length > 10;
+
+  if (pathname === '/admin/login') {
+    if (hasAuth) {
+      return NextResponse.redirect(new URL('/admin', request.url));
+    }
+    return NextResponse.next();
+  }
 
   if (pathname.startsWith('/admin')) {
-    if (pathname === '/admin/login') {
-      const auth = await getAuthCookie();
-      if (auth) {
-        return NextResponse.redirect(new URL('/admin', request.url));
-      }
-      return NextResponse.next();
-    }
-
-    const auth = await getAuthCookie();
-    if (!auth) {
-      return NextResponse.redirect(new URL('/admin/login', request.url));
-    }
-
-    try {
-      const { verifyToken } = await import('./lib/auth');
-      verifyToken(auth.token);
-    } catch {
+    if (!hasAuth) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }

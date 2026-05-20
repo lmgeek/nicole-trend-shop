@@ -1,3 +1,5 @@
+'use client';
+
 import { motion } from 'framer-motion';
 
 export default function LifestyleSection() {
@@ -9,7 +11,7 @@ export default function LifestyleSection() {
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="aspect-[3/4] rounded-2xl overflow-hidden">
               <img src="/images/products/lifestyle-1.jpg" alt="Donna elegante con vestito che cammina per una piazza italiana al tramonto" className="w-full h-full object-cover" />
             </motion.div>
-            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="aspect-[3/4] rounded-2xl overflow-hidden mt-8">
+            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="aspect-[3/4] rounded-2xl rounded-2xl overflow-hidden mt-8">
               <img src="/images/products/lifestyle-2.jpg" alt="Borsa e outfit in tessuto caramello su marmo con luce dorata" className="w-full h-full object-cover" />
             </motion.div>
           </div>
