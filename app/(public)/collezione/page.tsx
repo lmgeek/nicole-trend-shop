@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Check } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
@@ -23,6 +23,18 @@ interface Category {
 }
 
 export default function CollezionePage() {
+  return (
+    <Suspense fallback={
+      <div className="pt-28 pb-24 flex justify-center">
+        <p className="text-lg">Caricamento...</p>
+      </div>
+    }>
+      <CollezioneContent />
+    </Suspense>
+  );
+}
+
+function CollezioneContent() {
   const { addItem } = useCart();
   const searchParams = useSearchParams();
   const brandParam = searchParams.get('brand');
