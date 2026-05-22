@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Pencil, Trash2, Search, Package, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Package, Loader2, ToggleLeft, ToggleRight } from 'lucide-react';
 
 interface Product {
   _id: string;
@@ -13,6 +13,7 @@ interface Product {
   brand?: string;
   images?: string[];
   isFeatured: boolean;
+  enabled: boolean;
 }
 
 export default function ProdottiPage() {
@@ -20,6 +21,7 @@ export default function ProdottiPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [toggling, setToggling] = useState<string | null>(null);
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -45,6 +47,25 @@ export default function ProdottiPage() {
       console.error(err);
     } finally {
       setDeleting(null);
+    }
+  };
+
+  const toggleEnabled = async (product: Product) => {
+    setToggling(product._id);
+    try {
+      const res = await fetch(`/api/products/${product._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: !product.enabled }),
+      });
+      if (!res.ok) throw new Error('Errore');
+      setProducts((prev) =>
+        prev.map((p) => (p._id === product._id ? { ...p, enabled: !p.enabled } : p))
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setToggling(null);
     }
   };
 
@@ -88,7 +109,7 @@ export default function ProdottiPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filtered.map((product) => (
-          <div key={product._id} className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+          <div key={product._id} className={`bg-white rounded-xl border overflow-hidden hover:shadow-md transition-shadow ${!product.enabled ? 'border-gray-200 opacity-60' : 'border-gray-100'}`}>
             <div className="aspect-[3/4] bg-gray-100 relative overflow-hidden">
               {product.images && product.images.length > 0 ? (
                 <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
@@ -107,7 +128,20 @@ export default function ProdottiPage() {
               </div>
             </div>
             <div className="p-3">
-              <h3 className="font-medium text-gray-900 text-sm truncate">{product.name}</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium text-gray-900 text-sm truncate">{product.name}</h3>
+                <button
+                  onClick={() => toggleEnabled(product)}
+                  disabled={toggling === product._id}
+                  className="flex-shrink-0"
+                >
+                  {product.enabled ? (
+                    <ToggleRight className="w-6 h-6 text-green-500" />
+                  ) : (
+                    <ToggleLeft className="w-6 h-6 text-gray-300" />
+                  )}
+                </button>
+              </div>
               {product.brand && <p className="text-xs text-gray-500 mt-0.5">{product.brand}</p>}
               <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-50">
                 <span className="text-sm font-semibold text-gray-900">{formatPrice(product.price)}</span>

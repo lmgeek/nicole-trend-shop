@@ -6,12 +6,12 @@ import FeaturedProducts from '@/components/home/FeaturedProducts';
 import LifestyleSection from '@/components/home/LifestyleSection';
 import BannerCTA from '@/components/home/BannerCTA';
 import InstagramSection from '@/components/home/InstagramSection';
-import BrandCarousel from '@/components/home/BrandCarousel';
+import BrandsSection from '@/components/home/BrandsSection';
 
 export default function Home() {
   return (
     <>
-      <BrandCarousel />
+      <BrandsSection />
       <HeroSection />
       <CategoriesSection />
       <FeaturedProducts />

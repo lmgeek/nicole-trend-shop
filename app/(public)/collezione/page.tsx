@@ -6,12 +6,14 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Check } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
+import { useSearchParams } from 'next/navigation';
 
 interface Product {
   _id: string;
   name: string;
   price: number;
   category: string;
+  brand?: string;
   images?: string[];
 }
 
@@ -22,7 +24,11 @@ interface Category {
 
 export default function CollezionePage() {
   const { addItem } = useCart();
+  const searchParams = useSearchParams();
+  const brandParam = searchParams.get('brand');
+
   const [activeFilter, setActiveFilter] = useState('');
+  const [activeBrand, setActiveBrand] = useState<string | null>(brandParam);
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +52,18 @@ export default function CollezionePage() {
     fetchData();
   }, []);
 
-  const filtered = activeFilter === '' ? products : products.filter((p) => p.category === activeFilter);
+  useEffect(() => {
+    if (brandParam) {
+      setActiveBrand(brandParam);
+      setActiveFilter('');
+    }
+  }, [brandParam]);
+
+  const filtered = products.filter((p) => {
+    const matchCategory = activeFilter === '' || p.category === activeFilter;
+    const matchBrand = activeBrand === null || p.brand === activeBrand;
+    return matchCategory && matchBrand;
+  });
 
   const formatPrice = (price: number) => `\u20ac ${price.toFixed(2).replace('.', ',')}`;
 
@@ -66,6 +83,11 @@ export default function CollezionePage() {
     setTimeout(() => setAddedId(null), 1500);
   };
 
+  const clearFilters = () => {
+    setActiveFilter('');
+    setActiveBrand(null);
+  };
+
   if (loading) {
     return (
       <div className="pt-28 pb-24 flex justify-center">
@@ -82,14 +104,28 @@ export default function CollezionePage() {
           <h1 className="font-heading text-4xl md:text-6xl font-semibold text-foreground leading-tight">
             La Nostra<br /><span className="italic font-light">Collezione</span>
           </h1>
+          {activeBrand && (
+            <p className="text-lg text-foreground/60 mt-2">
+              Marca: <span className="text-foreground font-medium">{activeBrand}</span>
+            </p>
+          )}
         </motion.div>
 
+        {(activeFilter || activeBrand) && (
+          <button
+            onClick={clearFilters}
+            className="mb-6 text-sm text-foreground/60 hover:text-foreground underline underline-offset-4 transition-colors"
+          >
+            Mostra tutti i prodotti
+          </button>
+        )}
+
         <div className="flex flex-wrap gap-2 mb-12">
-          <button onClick={() => setActiveFilter('')} className={`font-body text-xs tracking-wider uppercase px-5 py-2.5 rounded-full transition-all ${activeFilter === '' ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground/60 hover:text-foreground hover:bg-card/80'}`}>
+          <button onClick={() => { setActiveFilter(''); setActiveBrand(null); }} className={`font-body text-xs tracking-wider uppercase px-5 py-2.5 rounded-full transition-all ${activeFilter === '' && !activeBrand ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground/60 hover:text-foreground hover:bg-card/80'}`}>
             TUTTO
           </button>
           {categories.map((cat) => (
-            <button key={cat.slug} onClick={() => setActiveFilter(cat.slug)} className={`font-body text-xs tracking-wider uppercase px-5 py-2.5 rounded-full transition-all ${activeFilter === cat.slug ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground/60 hover:text-foreground hover:bg-card/80'}`}>
+            <button key={cat.slug} onClick={() => { setActiveFilter(cat.slug); setActiveBrand(null); }} className={`font-body text-xs tracking-wider uppercase px-5 py-2.5 rounded-full transition-all ${activeFilter === cat.slug ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground/60 hover:text-foreground hover:bg-card/80'}`}>
               {cat.name}
             </button>
           ))}

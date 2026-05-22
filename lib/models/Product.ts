@@ -11,6 +11,7 @@ const productSchema = new mongoose.Schema({
   sizes: [{ type: String }],
   colors: [{ type: String }],
   isFeatured: { type: Boolean, default: false },
+  enabled: { type: Boolean, default: true },
 }, { timestamps: true });
 
 export const Product = mongoose.models.Product || mongoose.model('Product', productSchema);

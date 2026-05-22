@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Pencil, Trash2, Search, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Image as ImageIcon, Loader2, ToggleLeft, ToggleRight } from 'lucide-react';
 
 interface Category {
   _id: string;
@@ -17,6 +17,7 @@ export default function CategoriePage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [toggling, setToggling] = useState<string | null>(null);
 
   useEffect(() => { fetchCategories(); }, []);
 
@@ -42,6 +43,25 @@ export default function CategoriePage() {
       console.error(err);
     } finally {
       setDeleting(null);
+    }
+  };
+
+  const toggleEnabled = async (category: Category) => {
+    setToggling(category._id);
+    try {
+      const res = await fetch(`/api/categories/${category._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: !category.enabled }),
+      });
+      if (!res.ok) throw new Error('Errore');
+      setCategories((prev) =>
+        prev.map((c) => (c._id === category._id ? { ...c, enabled: !c.enabled } : c))
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setToggling(null);
     }
   };
 
@@ -80,7 +100,7 @@ export default function CategoriePage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((cat) => (
-          <div key={cat._id} className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+          <div key={cat._id} className={`bg-white rounded-xl border overflow-hidden hover:shadow-md transition-shadow ${!cat.enabled ? 'border-gray-200 opacity-60' : 'border-gray-100'}`}>
             <div className="aspect-[16/10] bg-gray-100 relative overflow-hidden">
               {cat.image ? (
                 <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
@@ -93,9 +113,13 @@ export default function CategoriePage() {
                 </div>
               )}
               <div className="absolute top-2 right-2">
-                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${cat.enabled ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                  {cat.enabled ? 'Attiva' : 'Disattivata'}
-                </span>
+                <button onClick={() => toggleEnabled(cat)} disabled={toggling === cat._id}>
+                  {cat.enabled ? (
+                    <ToggleRight className="w-7 h-7 text-green-500 drop-shadow-sm" />
+                  ) : (
+                    <ToggleLeft className="w-7 h-7 text-gray-300 drop-shadow-sm" />
+                  )}
+                </button>
               </div>
             </div>
             <div className="p-4">

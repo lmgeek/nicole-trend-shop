@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Pencil, Trash2, Image, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Image, Loader2, ToggleLeft, ToggleRight } from 'lucide-react';
 
 interface HeroSlide {
   _id: string;
@@ -22,6 +22,7 @@ export default function HeroPage() {
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [toggling, setToggling] = useState<string | null>(null);
 
   useEffect(() => { fetchSlides(); }, []);
 
@@ -47,6 +48,25 @@ export default function HeroPage() {
       console.error(err);
     } finally {
       setDeleting(null);
+    }
+  };
+
+  const toggleEnabled = async (slide: HeroSlide) => {
+    setToggling(slide._id);
+    try {
+      const res = await fetch(`/api/hero-slides/${slide._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: !slide.enabled }),
+      });
+      if (!res.ok) throw new Error('Errore');
+      setSlides((prev) =>
+        prev.map((s) => (s._id === slide._id ? { ...s, enabled: !s.enabled } : s))
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setToggling(null);
     }
   };
 
@@ -86,7 +106,7 @@ export default function HeroPage() {
         {sorted.map((slide) => {
           const img = getSlideImage(slide);
           return (
-            <div key={slide._id} className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+            <div key={slide._id} className={`bg-white rounded-xl border overflow-hidden hover:shadow-md transition-shadow ${!slide.enabled ? 'border-gray-200 opacity-60' : 'border-gray-100'}`}>
               <div className="aspect-[16/9] bg-gray-100 relative overflow-hidden">
                 {img ? (
                   <img src={img} alt="" className="w-full h-full object-cover" />
@@ -99,9 +119,18 @@ export default function HeroPage() {
                   <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${slide.type === 'product' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
                     {slide.type === 'product' ? 'Prodotto' : 'Custom'}
                   </span>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${slide.enabled ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                    {slide.enabled ? 'Attiva' : 'Disattivata'}
-                  </span>
+                </div>
+                <div className="absolute top-2 right-2">
+                  <button
+                    onClick={() => toggleEnabled(slide)}
+                    disabled={toggling === slide._id}
+                  >
+                    {slide.enabled ? (
+                      <ToggleRight className="w-7 h-7 text-green-500 drop-shadow-sm" />
+                    ) : (
+                      <ToggleLeft className="w-7 h-7 text-gray-300 drop-shadow-sm" />
+                    )}
+                  </button>
                 </div>
                 <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-0.5 rounded">
                   Ordine: {slide.order}
