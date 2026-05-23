@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Heart } from 'lucide-react';
 
 const brands = [
   { name: 'Brend', src: '/images/marcas-transparent/brend.png' },
@@ -24,10 +25,37 @@ export default function BrandsSection() {
 
   return (
     <section
-      className="relative w-full pt-16 pb-10 md:pt-56 md:pb-20 bg-cover bg-no-repeat bg-[position:50%_-4rem] md:bg-[position:50%_-6rem]"
+      className="relative w-full pt-16 pb-10 md:pt-20 md:pb-20 bg-cover bg-no-repeat bg-[position:50%_-4rem] md:bg-[position:50%_-6rem]"
       style={{ backgroundImage: "url('/images/nicole_back.png')" }}
     >
-      <div className="relative z-10 max-w-4xl mx-auto px-6 pt-48 md:pt-48">
+      <div className="relative z-10 max-w-4xl mx-auto px-6">
+
+        {/* Nicole Logo */}
+        <div className="flex justify-center mb-4 md:mb-4">
+          <img src="/images/nicole.png" alt="Nicole Trend Shop" className="h-20 md:h-32 w-auto object-contain" />
+        </div>
+
+        {/* Divider with heart */}
+        <div className="flex items-center justify-center gap-4 mb-4 max-w-lg mx-auto">
+          <div className="h-px flex-1" style={{ backgroundColor: '#a26554' }} />
+          <Heart className="w-5 h-5" style={{ color: '#a26554' }} fill="#a26554" />
+          <div className="h-px flex-1" style={{ backgroundColor: '#a26554' }} />
+        </div>
+
+        {/* Tagline */}
+        <p className="text-center font-heading text-lg md:text-2xl italic tracking-wide mb-4" style={{ color: '#a26554' }}>
+          Abbigliamento &amp; Accessori
+        </p>
+
+        {/* Divider with "I NOSTRI BRAND" */}
+        <div className="flex items-center justify-center gap-4 mb-4 max-w-lg mx-auto">
+          <div className="h-px flex-1" style={{ backgroundColor: '#a26554' }} />
+          <span className="font-body text-2xl tracking-[0.25em] font-semibold flex-shrink-0" style={{ color: '#a26554' }}>
+            I NOSTRI BRAND
+          </span>
+          <div className="h-px flex-1" style={{ backgroundColor: '#a26554' }} />
+        </div>
+
         {/* Mobile: 2-2-2-1 */}
         <div className="flex flex-col items-center gap-0 md:hidden">
           <div className="grid grid-cols-2 gap-8 justify-items-center">

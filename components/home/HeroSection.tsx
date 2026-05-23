@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ShoppingBag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useAppLoading } from '@/lib/app-loading-context';
 
 interface Product {
   _id: string;
@@ -28,11 +29,13 @@ interface HeroSlide {
 }
 
 export default function HeroSection() {
+  const { registerLoading } = useAppLoading();
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const markHeroDone = registerLoading('hero');
     fetch('/api/public/hero-slides')
       .then((res) => res.json())
       .then((data) => {
@@ -41,8 +44,11 @@ export default function HeroSection() {
         }
       })
       .catch((err) => console.error('Errore caricamento hero slides:', err))
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => {
+        setLoading(false);
+        markHeroDone();
+      });
+  }, [registerLoading]);
 
   useEffect(() => {
     if (slides.length <= 1) return;

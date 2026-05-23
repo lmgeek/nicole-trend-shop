@@ -1,12 +1,12 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 import { Suspense, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Check } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
 import { useSearchParams } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 
 interface Product {
   _id: string;

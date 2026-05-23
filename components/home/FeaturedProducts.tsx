@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ShoppingCart, Check } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
+import { useAppLoading } from '@/lib/app-loading-context';
 
 interface Product {
   _id: string;
@@ -14,12 +15,14 @@ interface Product {
 }
 
 export default function FeaturedProducts() {
+  const { registerLoading } = useAppLoading();
   const { addItem } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [addedId, setAddedId] = useState<string | null>(null);
 
   useEffect(() => {
+    const markFeaturedDone = registerLoading('featured');
     fetch('/api/public/products/featured')
       .then((res) => res.json())
       .then((data) => {
@@ -34,8 +37,11 @@ export default function FeaturedProducts() {
         console.error('Errore nel caricamento dei prodotti preferiti:', err);
         setProducts([]);
       })
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => {
+        setLoading(false);
+        markFeaturedDone();
+      });
+  }, [registerLoading]);
 
   const handleAddToCart = (product: Product) => {
     addItem({

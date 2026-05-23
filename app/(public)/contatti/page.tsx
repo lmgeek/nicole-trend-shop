@@ -1,9 +1,9 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 import { motion } from 'framer-motion';
 import { Instagram, MapPin, Phone } from 'lucide-react';
+
+export const dynamic = 'force-dynamic';
 
 const WHATSAPP_URL = 'https://wa.me/?text=Benvenuti%20da%20Nicole%20Trend%20Shop%2C%20in%20cosa%20possiamo%20aiutarti%3F';
 

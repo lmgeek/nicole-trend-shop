@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useAppLoading } from '@/lib/app-loading-context';
 
 interface Category {
   name: string;
@@ -19,9 +20,11 @@ const defaultCategories = [
 ];
 
 export default function CategoriesSection() {
+  const { registerLoading } = useAppLoading();
   const [categories, setCategories] = useState(defaultCategories);
 
   useEffect(() => {
+    const markCatsDone = registerLoading('categories');
     fetch('/api/categories/enabled')
       .then((res) => res.json())
       .then((data) => {
@@ -32,8 +35,9 @@ export default function CategoriesSection() {
           }
         }
       })
-      .catch(() => {});
-  }, []);
+      .catch(() => {})
+      .finally(() => markCatsDone());
+  }, [registerLoading]);
 
   return (
     <section className="py-24 md:py-32">

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Menu, X, Instagram, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/lib/cart-context';
+import { useAppLoading } from '@/lib/app-loading-context';
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -26,6 +27,7 @@ interface SiteConfig {
 }
 
 export default function Navbar() {
+  const { registerLoading } = useAppLoading();
   const [isOpen, setIsOpen] = useState(false);
   const { getItemCount } = useCart();
   const itemCount = getItemCount();
@@ -44,6 +46,7 @@ export default function Navbar() {
   });
 
   useEffect(() => {
+    const markNavDone = registerLoading('navbar');
     fetch('/api/public/site-config')
       .then((res) => res.json())
       .then((data) => {
@@ -63,8 +66,9 @@ export default function Navbar() {
           }));
         }
       })
-      .catch(() => {});
-  }, []);
+      .catch(() => {})
+      .finally(() => markNavDone());
+  }, [registerLoading]);
 
   const enabledSocials = Object.entries(config.social).filter(([, v]) => v.enabled && v.url);
 

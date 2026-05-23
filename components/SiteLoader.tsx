@@ -1,39 +1,28 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useAppLoading } from '@/lib/app-loading-context';
 
 export default function SiteLoader() {
-  const [visible, setVisible] = useState(true);
-  const [fadeOut, setFadeOut] = useState(false);
+  const { pageReady } = useAppLoading();
 
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
-
-    const handleLoad = () => {
-      setTimeout(() => {
-        setFadeOut(true);
-        setTimeout(() => {
-          setVisible(false);
-          document.body.style.overflow = '';
-        }, 600);
-      }, 300);
-    };
-
-    if (document.readyState === 'complete') {
-      handleLoad();
+    if (pageReady) {
+      document.body.style.overflow = '';
+      const loader = document.getElementById('site-loader');
+      if (loader) {
+        loader.classList.add('opacity-0');
+        setTimeout(() => { loader.remove(); }, 600);
+      }
     } else {
-      window.addEventListener('load', handleLoad);
-      return () => window.removeEventListener('load', handleLoad);
+      document.body.style.overflow = 'hidden';
     }
-  }, []);
-
-  if (!visible) return null;
+  }, [pageReady]);
 
   return (
     <div
-      className={`fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center transition-opacity duration-500 ${
-        fadeOut ? 'opacity-0' : 'opacity-100'
-      }`}
+      id="site-loader"
+      className="fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center transition-opacity duration-500"
     >
       <div className="flex flex-col items-center">
         <img

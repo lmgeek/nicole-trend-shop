@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Instagram } from 'lucide-react';
+import { useAppLoading } from '@/lib/app-loading-context';
 
 const INSTAGRAM_USERNAME = 'nicoletrend.shop';
 
@@ -14,10 +15,12 @@ interface MockPost {
 }
 
 export default function InstagramSection() {
+  const { registerLoading } = useAppLoading();
   const [posts, setPosts] = useState<MockPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const markInstagramDone = registerLoading('instagram');
     const mockPosts: MockPost[] = [
       { id: '1', permalink: 'https://www.instagram.com/p/abc123/', media_url: '/images/products/dress-2.jpg', caption: 'Nuova collezione estate 2026 ✨ #fashion #style' },
       { id: '2', permalink: 'https://www.instagram.com/p/def456/', media_url: '/images/products/blouse-2.jpg', caption: 'Eleganza senza tempo 👗 #nicoletrend' },
@@ -28,7 +31,8 @@ export default function InstagramSection() {
     ];
     setPosts(mockPosts);
     setLoading(false);
-  }, []);
+    markInstagramDone();
+  }, [registerLoading]);
 
   return (
     <section className="py-24 md:py-32 bg-card">
