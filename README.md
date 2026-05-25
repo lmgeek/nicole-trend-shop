@@ -4,66 +4,84 @@ E-commerce Next.js con MongoDB.
 
 ## Deploy en Dokploy
 
-### 1. Conectar repositorio
+### 1. Crear proyecto en Dokploy
 
-En Dokploy, crea un nuevo proyecto y conecta el repositorio de GitHub.
+- **Build Type:** `nixpacks`
+- **Repository:** conecta tu repositorio de GitHub
+- **Branch:** `main`
 
-### 2. Configurar Docker Compose
+Dokploy detecta automáticamente `nixpacks.toml` y construye la app.
 
-Dokploy detecta automáticamente el archivo `docker-compose.yml`. Asegúrate de que el **Build Type** esté en `docker-compose`.
+### 2. Agregar MongoDB
 
-No necesita Dockerfile adicional — el compose construye la app desde el Dockerfile incluido.
+En Dokploy, ve a la sección **Databases** de tu proyecto y agrega una base de datos **MongoDB**.
 
-### 3. Configurar variables de entorno
+Esto crea un contenedor MongoDB accesible internamente como `mongodb` (mismo nombre del servicio). La app se conecta automáticamente a `mongodb://mongodb:27017/nicole-trend-shop`.
 
-En la sección **Environment** de Dokploy, agrega:
+### 3. Variables de entorno
+
+Configura estas variables en **Environment** de Dokploy:
 
 | Variable | Valor | Obligatorio |
 |----------|-------|-------------|
 | `JWT_SECRET` | `4oQSjsEL3StILUxjxettkM9drzklb7F86DKqaDPwrqwGnpoCxxnhgji/NkDNChZe` | Sí |
-| `APP_PORT` | `3000` | No (default) |
-| `MONGO_EXPRESS_PORT` | `8081` | No (default) |
-| `MONGO_EXPRESS_USER` | `admin` | No (default) |
-| `MONGO_EXPRESS_PASS` | `admin` | No (default) |
-
-> **Importante:** Cambia `MONGO_EXPRESS_USER` y `MONGO_EXPRESS_PASS` si expones Mongo Express al público.
+| `NODE_ENV` | `production` | Sí |
+| `MONGODB_URI` | `mongodb://mongodb:27017/nicole-trend-shop` | Sí |
 
 ### 4. Primer deploy
 
-Dokploy construye las imágenes e inicia los servicios en este orden:
+Dokploy construye e inicia los servicios. En el primer inicio:
 
-1. `mongodb` — base de datos
-2. `mongo-express` — interfaz web de administración (opcional)
-3. `app` — aplicación Next.js
+1. El entrypoint espera a que MongoDB esté listo
+2. Ejecuta las migraciones automáticas (`migrations/runner.js`)
+3. Crea los datos iniciales (admin, categorías, productos, etc.)
+4. Inicia Next.js en modo producción
 
-En el primer inicio, `app` ejecuta automáticamente las migraciones:
-- Crea colección `_migrations` para trackear migraciones ejecutadas
-- Ejecuta `001-initial-data.js` (admin, categorías, productos, etc.)
-- Solo se ejecuta una vez; migraciones futuras se agregan como `002-*.js`
+### 5. Verificar
 
-### 5. Verificar deploy
-
-Accede a:
-
-- **App:** `http://<tu-dominio>:3000`
-- **Admin:** `http://<tu-dominio>:3000/admin/login`
+- **App:** `http://<tu-dominio>`
+- **Admin:** `http://<tu-dominio>/admin/login`
   - Email: `admin@nicoletrend.com`
   - Password: `Nicol3123!Admin`
-- **Mongo Express:** `http://<tu-dominio>:8081` (con basic auth configurado arriba)
 
-### 6. Health check
+### 6. Mongo Express (opcional)
 
-La app expone `GET /api/health` que responde `{ "status": "ok" }`. Dokploy usa este endpoint para monitorear el contenedor.
+Para acceder a la base de datos desde el navegador, levanta localmente:
 
-### 7. Persistencia de datos
+```bash
+docker compose up -d
+```
 
-MongoDB guarda los datos en el volumen `mongodb_data`. Los datos persisten entre redeploys.
+Accede en `http://localhost:8081` (usuario: `admin`, password: `admin`).
+
+> En Dokploy, puedes agregar Mongo Express como otro servicio Nixpacks, o exponer el puerto de MongoDB desde la base de datos de Dokploy.
 
 ---
 
-## Agregar migraciones futuras
+## Desarrollo local
 
-Crea un archivo en `migrations/` con el formato `NNN-descripcion.js`:
+```bash
+# Iniciar MongoDB
+docker compose up -d
+
+# Copiar .env.example a .env.local y configurar
+cp .env.example .env.local
+
+# Instalar dependencias
+npm install
+
+# Ejecutar migraciones manualmente
+node migrations/runner.js
+
+# Iniciar dev
+npm run dev
+```
+
+---
+
+## Migraciones futuras
+
+Crea un archivo en `migrations/` con formato `NNN-descripcion.js`:
 
 ```js
 module.exports = {
