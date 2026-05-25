@@ -112,7 +112,8 @@ function CollezioneContent() {
     <div className="pb-24 md:pb-32">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12">
-          <p className="font-body text-xs tracking-[0.3em] uppercase text-foreground/50 mb-3">Abbigliamento e Accessori</p>
+          {/*<p className="font-body text-xs tracking-[0.3em] uppercase text-foreground/50 mb-3">Abbigliamento e Accessori</p>*/}
+          <br />
           <h1 className="font-heading text-4xl md:text-6xl font-semibold text-foreground leading-tight">
             La Nostra<br /><span className="italic font-light">Collezione</span>
           </h1>
