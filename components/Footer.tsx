@@ -42,7 +42,7 @@ export default function Footer() {
                 @nicoletrend.shop
               </a>
               <a
-                href="https://wa.me/?text=Benvenuti%20da%20Nicole%20Trend%20Shop%2C%20in%20cosa%20possiamo%20aiutarti%3F"
+                href="https://wa.me/393383242194?text=Benvenuti%20da%20Nicole%20Trend%20Shop%2C%20in%20cosa%20possiamo%20aiutarti%3F"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 font-body text-sm opacity-70 hover:opacity-100 transition-opacity"

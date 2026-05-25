@@ -1,11 +1,12 @@
 'use client';
 
+import { useState, FormEvent } from 'react';
 import { motion } from 'framer-motion';
-import { Instagram, MapPin, Phone } from 'lucide-react';
+import { Instagram, MapPin, Phone, Loader2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-const WHATSAPP_URL = 'https://wa.me/?text=Benvenuti%20da%20Nicole%20Trend%20Shop%2C%20in%20cosa%20possiamo%20aiutarti%3F';
+const WHATSAPP_URL = 'https://wa.me/393383242194?text=Benvenuti%20da%20Nicole%20Trend%20Shop%2C%20in%20cosa%20possiamo%20aiutarti%3F';
 
 const STORE_INFO = [
   { address: 'Via Don Torello, 23', city: 'Latina', phone: '0773280894' },
@@ -13,6 +14,26 @@ const STORE_INFO = [
 ];
 
 export default function ContattiPage() {
+  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setStatus('sending');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error();
+      setStatus('success');
+      setForm({ name: '', email: '', phone: '', message: '' });
+    } catch {
+      setStatus('error');
+    }
+  }
+
   return (
     <div className="pb-24 md:pb-32">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
@@ -78,27 +99,33 @@ export default function ContattiPage() {
             Invia un <span className="italic font-light">Messaggio</span>
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="name" className="block font-body text-sm font-medium text-foreground mb-2">Nome</label>
-                  <input type="text" id="name" className="w-full px-4 py-3 rounded-xl bg-card border border-foreground/10 text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Il tuo nome" />
+                  <input type="text" id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="w-full px-4 py-3 rounded-xl bg-card border border-foreground/10 text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Il tuo nome" />
                 </div>
                 <div>
                   <label htmlFor="email" className="block font-body text-sm font-medium text-foreground mb-2">Email</label>
-                  <input type="email" id="email" className="w-full px-4 py-3 rounded-xl bg-card border border-foreground/10 text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="tua@email.it" />
+                  <input type="email" id="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required className="w-full px-4 py-3 rounded-xl bg-card border border-foreground/10 text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="tua@email.it" />
                 </div>
               </div>
               <div>
                 <label htmlFor="phone" className="block font-body text-sm font-medium text-foreground mb-2">Telefono</label>
-                <input type="tel" id="phone" className="w-full px-4 py-3 rounded-xl bg-card border border-foreground/10 text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Il tuo numero di telefono" />
+                <input type="tel" id="phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-card border border-foreground/10 text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Il tuo numero di telefono" />
               </div>
               <div>
                 <label htmlFor="message" className="block font-body text-sm font-medium text-foreground mb-2">Messaggio</label>
-                <textarea id="message" rows={5} className="w-full px-4 py-3 rounded-xl bg-card border border-foreground/10 text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors resize-none" placeholder="Scrivi il tuo messaggio..." />
+                <textarea id="message" rows={5} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} required className="w-full px-4 py-3 rounded-xl bg-card border border-foreground/10 text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors resize-none" placeholder="Scrivi il tuo messaggio..." />
               </div>
-              <button type="submit" className="w-full bg-primary text-primary-foreground font-body text-sm font-semibold px-8 py-4 rounded-full tracking-wide uppercase hover:opacity-90 transition-opacity">
-                Invia Messaggio
+              {status === 'success' && (
+                <p className="text-green-600 text-sm text-center">Messaggio inviato con successo! Ti risponderemo presto.</p>
+              )}
+              {status === 'error' && (
+                <p className="text-red-500 text-sm text-center">Errore nell&apos;invio. Riprova più tardi.</p>
+              )}
+              <button type="submit" disabled={status === 'sending'} className="w-full bg-primary text-primary-foreground font-body text-sm font-semibold px-8 py-4 rounded-full tracking-wide uppercase hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2">
+                {status === 'sending' ? <><Loader2 className="w-4 h-4 animate-spin" /> Invio in corso...</> : 'Invia Messaggio'}
               </button>
             </form>
 

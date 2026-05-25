@@ -17,6 +17,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'Nicole Trend Shop - Abbigliamento e Accessori',
   description: "L'eleganza italiana per ogni occasione. Scopri la nostra selezione di abbigliamento e accessori pensati per la donna moderna.",
+  icons: {
+    icon: '/images/nicole_n_w.png',
+    apple: '/images/nicole_n_w.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

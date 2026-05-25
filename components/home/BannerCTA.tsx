@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 
-const WHATSAPP_URL = 'https://wa.me/?text=Benvenuti%20da%20Nicole%20Trend%20Shop%2C%20in%20cosa%20possiamo%20aiutarti%3F';
+const WHATSAPP_URL = 'https://wa.me/393383242194?text=Benvenuti%20da%20Nicole%20Trend%20Shop%2C%20in%20cosa%20possiamo%20aiutarti%3F';
 
 export default function BannerCTA() {
   return (
