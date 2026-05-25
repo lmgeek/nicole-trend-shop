@@ -2,9 +2,12 @@
 set -e
 
 echo "================================================"
-echo "  Nicole Trend Shop - Entrypoint"
+echo "  Nicole Trend Shop - Entrypoint - Start.sh"
 echo "================================================"
 
+echo ""
+MONGO_URI="${MONGODB_URI:-mongodb://mongodb:27017/nicole-trend-shop}"
+echo "MongoDB URI: ${MONGO_URI}"
 echo ""
 echo "Waiting for MongoDB..."
 for i in $(seq 1 30); do
